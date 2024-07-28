@@ -24,6 +24,7 @@ class WordList
   private
 
   def download
+    Dir.mkdir 'data' unless Dir.exist? 'data'
     system "curl -o #{FILE_NAME} #{DL_LINK}"
   rescue StandardError
     puts "download the wordlist from #{DL_LINK}"
