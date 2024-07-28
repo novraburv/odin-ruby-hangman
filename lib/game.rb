@@ -3,14 +3,6 @@
 require_relative 'wordlist'
 require_relative 'player'
 
-# game select random word from wordlist
-# measure word length
-# make input field and game progress, including attempts left
-#   max attempts is 7
-# save guesses in guess class
-# evaluate
-# repeat
-
 # game controller
 class Game
   WORDLIST = WordList.new
@@ -22,10 +14,11 @@ class Game
     @additional_msg = nil
   end
 
-  def start
+  def start # rubocop:disable Metrics/MethodLength
     while @attempts.positive?
 
       display(@additional_msg, 'input a letter:')
+      save_game
 
       input = gets.chomp.upcase
       next unless valid? input
@@ -39,6 +32,14 @@ class Game
     return unless @attempts.zero?
 
     display "the answer should be #{@word}. game over"
+  end
+
+  def save_game
+    File.write('data/save_game', Marshal.dump(self))
+  end
+
+  def self.load_game(file)
+    File.open(file, 'rb') { |data| Marshal.load(data).start }
   end
 
   private
@@ -81,6 +82,3 @@ class Game
     false
   end
 end
-
-# notes:
-#   add features to save and load game with serialization
