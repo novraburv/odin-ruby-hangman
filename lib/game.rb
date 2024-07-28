@@ -19,42 +19,66 @@ class Game
     @word = WORDLIST.random_word
     @player = Player.new(@word.length)
     @used_letter = []
+    @additional_msg = nil
   end
 
   def start
     while @attempts.positive?
-      puts <<-HEREDOC
-      ❤: #{@attempts}
-      used letters: #{@used_letter.join(' ')}
 
-      #{@player.word.split('').join(' ')}
-      insert your guess:
-      HEREDOC
+      display(@additional_msg, 'input a letter:')
 
       input = gets.chomp.upcase
-      @used_letter.push input
-
-      unless @word.include? input
-        system 'clear'
-        puts 'none of such things in the word'
-        @attempts -= 1
-        next
-      end
+      next unless valid? input
 
       @player.guess(input, @word)
-
       next unless @word == @player.word
 
-      system 'clear'
-      puts 'you won'
+      display 'congratulations! you won'
       break
     end
     return unless @attempts.zero?
 
-    puts <<-HEREDOC
-      answer should be #{@word}
-      game over!
+    display "the answer should be #{@word}. game over"
+  end
+
+  private
+
+  def display(*msgs)
+    system 'clear'
+    puts <<~HEREDOC
+      attempts: #{'❤' * @attempts}
+      used letters: #{@used_letter.join(' ')}
+
+      #{@player.word.split('').join(' ')}
+
+      messages: #{msgs.filter { |msg| !msg.nil? }.join('. ')}
     HEREDOC
+  end
+
+  def valid?(input)
+    return false if used?(input)
+
+    @used_letter.push input
+
+    return false unless included? input
+
+    @additional_msg = nil
+    true
+  end
+
+  def used?(letter)
+    return false unless @used_letter.include? letter
+
+    @additional_msg = "that letter, #{letter}, have been used"
+    true
+  end
+
+  def included?(letter)
+    return true if @word.include? letter
+
+    @additional_msg = 'none of such letter in the word'
+    @attempts -= 1
+    false
   end
 end
 
