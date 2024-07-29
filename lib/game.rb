@@ -16,9 +16,8 @@ class Game
 
   def start # rubocop:disable Metrics/MethodLength
     while @attempts.positive?
-
-      display(@additional_msg, 'input a letter:')
       save_game
+      display(@additional_msg, 'input a letter:')
 
       input = gets.chomp.upcase
       next unless valid? input
@@ -35,7 +34,7 @@ class Game
   end
 
   def save_game
-    File.write('data/save_game', Marshal.dump(self))
+    File.write('data/save_game.marshal', Marshal.dump(self))
   end
 
   def self.load_game(file)
